@@ -9,11 +9,11 @@ from surprise import Reader, Dataset, SVD, evaluate
 class Personal_SVD_recommender:
     def __init__(self):
         self.reader = Reader()
-        self.ratings = pd.read_csv('../data/personal/ratings.csv')
+        self.ratings = pd.read_csv('../data/personal/train.csv')
         data = Dataset.load_from_df(self.ratings[['userId', 'movieId', 'rating']], self.reader)
         # data.split(n_folds=5)
         self.svd = SVD(n_epochs=20, n_factors=100, verbose=True)
-        # evaluate(self.svd, data, measures=['RMSE', 'MAE'])
+        evaluate(self.svd, data, measures=['RMSE', 'MAE'])
         trainset = data.build_full_trainset()
         self.svd.fit(trainset)
 
@@ -30,17 +30,19 @@ class Personal_SVD_recommender:
         dic = {}
         for i in movies:
             dic[i] = self.rating(usrID, i)
-        print('dic', dic)
+        # print('dic', dic)
         result = sorted(dic.items(), key=lambda x: x[1], reverse=True)
         result = result[:num]
-        print('result', result)
+        # print('result', result)
         movie = []
         rates = []
+        ids = []
         for i in result:
-            print(i)
+            # print(i)
             movie.append(self.index[self.index.movieId==i[0]]['title'])
             rates.append(i[1])
-        return movie
+            ids.append(i[0])
+        return movie, ids
 
 
 # test = Personal_SVD_recommender()

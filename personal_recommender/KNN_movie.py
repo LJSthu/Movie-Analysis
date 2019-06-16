@@ -52,9 +52,9 @@ class Movie_KNN_recommender:
 
 
 
-# test = Movie_KNN_recommender()
-# result = test.recommend(122912, 10)
-# for i in result:
-#     print(i.values[0])
+test = Movie_KNN_recommender()
+result = test.recommend(122922, 10)
+for i in result:
+    print(i.values[0])
 
 

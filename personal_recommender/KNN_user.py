@@ -8,13 +8,15 @@ from surprise import Reader, Dataset, SVD, evaluate
 from surprise import KNNBaseline
 from surprise import KNNWithMeans
 from surprise import KNNBasic
+import csv
 
 
 class Personal_KNN_recommender:
     def __init__(self, mode=0):
         self.index = pd.read_csv('../data/personal/movies.csv')
         self.reader = Reader()
-        self.ratings = pd.read_csv('../data/personal/ratings.csv')
+        self.ratings = pd.read_csv('../data/personal/train.csv')
+        self.testings = pd.read_csv('../data/personal/test.csv')
         data = Dataset.load_from_df(self.ratings[['userId', 'movieId', 'rating']], self.reader)
         trainset = data.build_full_trainset()
         sim_options = {'name': 'pearson_baseline', 'user_based': True}
@@ -26,7 +28,10 @@ class Personal_KNN_recommender:
             self.algo = KNNBasic(sim_options=sim_options)
         else:
             exit(0)
-
+        self.userid = []
+        for i in range(len(self.testings['userId'])):
+            if not self.testings['userId'][i] in self.userid:
+                self.userid.append(self.testings['userId'][i])
         self.algo.fit(trainset)
 
     def get_similar_users(self, usrID, num=10):
@@ -65,11 +70,26 @@ class Personal_KNN_recommender:
             recommending_id.append(i[0])
         return recommending, recommending_id  # 返回推荐的电影名字和id
 
+    def test(self, num = 10):
+        result = []
+        for user in self.userid:
+            _, ids = self.recommend(user, num)
+            # print(ids)
+            result.append(ids)
+
+        with open("./result.csv", "w") as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['userId', 'result'])
+            for i,row in enumerate(result):
+                writer.writerow([self.userid[i], row])
 
 
-#
-# test = Personal_KNN_recommender()
-# print(test.recommend(2, 10))
 
 
+test = Personal_KNN_recommender()
+# result = test.recommend(6, 10)
+# for i in result:
+#     print(i)
+
+test.test(10)
 
